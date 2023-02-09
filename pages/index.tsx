@@ -28,8 +28,6 @@ const Blog: React.FC<Props> = (props) => {
   return (
     <Layout>
       <div className="page">
-        //update the page. Create new components and refacotor exisiting
-        components
         <h1>Public Feed Post</h1>
         <main>
           {props.feed.map((post) => (
