@@ -67,3 +67,11 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model History {
+  id         Int      @id @default(autoincrement())
+  prompt     String
+  response   String
+  session_id String
+  createdAt  DateTime @default(now())
+}
