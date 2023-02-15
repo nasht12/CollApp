@@ -128,6 +128,12 @@ const Header: React.FC = () => {
         <Link href="/qa">
           <a data-active={isActive("/qa")}>Q&A</a>
         </Link>
+        <Link href="/collegeinfo">
+          <a data-active={isActive("/collegeinfo")}>College Info</a>
+        </Link>
+        <Link href="/dataaggregator">
+          <a data-active={isActive("/dataaggregator")}>Data Aggregator</a>
+        </Link>
         <style jsx>{`
           .bold {
             font-weight: bold;

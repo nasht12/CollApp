@@ -1,8 +1,39 @@
 import React, { useState, useEffect } from "react";
+import { GetServerSideProps } from "next";
+import { useSession, getSession } from "next-auth/react";
 import Layout from "../components/Layout";
-import { getSession } from "next-auth/react";
+import prisma from "../lib/prisma";
 
-const QA: React.FC = () => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const session = await getSession({ req });
+  if (!session) {
+    res.statusCode = 403;
+    return { props: { history: [] } };
+  }
+  const history = await prisma.history.findMany();
+  const historyWithSerializableDates = history.map((item) => ({
+    ...item,
+    createdAt: item.createdAt.toISOString(),
+  }));
+  return {
+    props: { historyWithSerializableDates },
+  };
+};
+
+export type HistoryProps = {
+  id: string;
+  prompt: string;
+  response: string;
+  session_id: Date;
+  createdAt: string;
+};
+
+type Props = {
+  history: HistoryProps[];
+};
+
+const QA: React.FC = (Props) => {
+  const { data: session } = useSession();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
   const [history, setHistory] = useState<
@@ -13,7 +44,7 @@ const QA: React.FC = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch("/api/qa", {
+      const result = await fetch("/api/qa", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -23,8 +54,9 @@ const QA: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
+      const data = await result.json();
       console.log("here", data);
+      console.log("Props", Props);
       // Store the response in the state or update the UI with the response here
       setResponse(data.res);
       setHistory([...history, { query, response: data.res }]);
@@ -36,6 +68,15 @@ const QA: React.FC = () => {
   useEffect(() => {
     console.log("history: ", history);
   }, [history]);
+
+  if (!session) {
+    return (
+      <Layout>
+        <h1>QA</h1>
+        <div>You need to be authenticated to view this page.</div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
