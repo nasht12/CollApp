@@ -1,27 +1,24 @@
-// schema.prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-// schema.prisma
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
 
 model Post {
-  id        String  @id @default(cuid())
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   content   String?
   published Boolean @default(false)
   author    User?   @relation(fields: [authorId], references: [id])
-  authorId  String?
+  authorId  String? @db.ObjectId
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String  @map("user_id") @db.ObjectId
   type               String
   provider           String
   providerAccountId  String  @map("provider_account_id")
@@ -34,22 +31,21 @@ model Account {
   session_state      String?
   oauth_token_secret String?
   oauth_token        String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
+  userId       String   @map("user_id") @db.ObjectId
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
   email         String?   @unique
   emailVerified DateTime?
@@ -60,7 +56,7 @@ model User {
 }
 
 model VerificationToken {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   identifier String
   token      String   @unique
   expires    DateTime
@@ -69,9 +65,87 @@ model VerificationToken {
 }
 
 model History {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   prompt     String
   response   String
   session_id String
   createdAt  DateTime @default(now())
+}
+
+model collegedata {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  ACT      String
+  ADDR     String
+  ADMINURL String
+  APPLURL  String
+  ATHURL   String
+  C15BASIC String
+  C18BASIC String
+  C21BASIC String
+  C21ENPRF String
+  C21IPGRD String
+  C21IPUG  String
+  C21SZSET String
+  C21UGPRF String
+  CARNEGIE String
+  CBSA     String
+  CBSATYPE String
+  CCBASIC  String
+  CHFNM    String
+  CHFTITLE String
+  CITY     String
+  CLOSEDAT String
+  CNGDSTCD String
+  CONTROL  String
+  COUNTYCD String
+  COUNTYNM String
+  CSA      String
+  CYACTIVE String
+  DEATHYR  String
+  DEGGRANT String
+  DFRCGID  String
+  DFRCUSCG String
+  DISAURL  String
+  DUNS     String
+  EIN      String
+  F1SYSCOD String
+  F1SYSNAM String
+  F1SYSTYP String
+  FAIDURL  String
+  FIPS     String
+  GENTELE  String
+  GROFFER  String
+  HBCU     String
+  HDEGOFR1 String
+  HLOFFER  String
+  HOSPITAL String
+  IALIAS   String
+  ICLEVEL  String
+  INSTCAT  String
+  INSTNM   String
+  INSTSIZE String
+  LANDGRNT String
+  LATITUDE String
+  LOCALE   String
+  LONGITUD String
+  MEDICAL  String
+  NECTA    String
+  NEWID    String
+  NPRICURL String
+  OBEREG   String
+  OPEFLAG  String
+  OPEID    String
+  OPENPUBL String
+  POSTSEC  String
+  PSEFLAG  String
+  PSET4FLG String
+  RPTMTH   String
+  SECTOR   String
+  STABBR   String
+  TRIBAL   String
+  UGOFFER  String
+  UNITID   String
+  VETURL   String
+  WEBADDR  String
+  ZIP      String
 }

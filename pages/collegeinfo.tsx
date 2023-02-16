@@ -1,4 +1,6 @@
 import React from "react";
+import { GetServerSideProps } from "next";
+import { useSession, getSession } from "next-auth/react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -7,8 +9,104 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
 import Layout from "../components/Layout";
+import prisma from "../lib/prisma";
 
-const DialogCards: React.FC = () => {
+const ITEMS_PER_PAGE = 500;
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const session = await getSession({ req });
+  if (!session) {
+    res.statusCode = 403;
+    return { props: { history: [] } };
+  }
+  const coldata = await prisma.collegedata.findMany({ take: ITEMS_PER_PAGE });
+  return {
+    props: { coldata },
+  };
+};
+
+export type CollegedataProps = {
+  id: String;
+  ADDR: String;
+  ADMINURL: String;
+  APPLURL: String;
+  ATHURL: String;
+  C15BASIC: String;
+  C18BASIC: String;
+  C21BASIC: String;
+  C21ENPRF: String;
+  C21IPGRD: String;
+  C21IPUG: String;
+  C21SZSET: String;
+  C21UGPRF: String;
+  CARNEGIE: String;
+  CBSA: String;
+  CBSATYPE: String;
+  CCBASIC: String;
+  CHFNM: String;
+  CHFTITLE: String;
+  CITY: String;
+  CLOSEDAT: String;
+  CNGDSTCD: String;
+  CONTROL: String;
+  COUNTYCD: String;
+  COUNTYNM: String;
+  CSA: String;
+  CYACTIVE: String;
+  DEATHYR: String;
+  DEGGRANT: String;
+  DFRCGID: String;
+  DFRCUSCG: String;
+  DISAURL: String;
+  DUNS: String;
+  EIN: String;
+  F1SYSCOD: String;
+  F1SYSNAM: String;
+  F1SYSTYP: String;
+  FAIDURL: String;
+  FIPS: String;
+  GENTELE: String;
+  GROFFER: String;
+  HBCU: String;
+  HDEGOFR1: String;
+  HLOFFER: String;
+  HOSPITAL: String;
+  IALIAS: String;
+  ICLEVEL: String;
+  INSTCAT: String;
+  INSTNM: String;
+  INSTSIZE: String;
+  LANDGRNT: String;
+  LATITUDE: String;
+  LOCALE: String;
+  LONGITUD: String;
+  MEDICAL: String;
+  NECTA: String;
+  NEWID: String;
+  NPRICURL: String;
+  OBEREG: String;
+  OPEFLAG: String;
+  OPEID: String;
+  OPENPUBL: String;
+  POSTSEC: String;
+  PSEFLAG: String;
+  PSET4FLG: String;
+  RPTMTH: String;
+  SECTOR: String;
+  STABBR: String;
+  TRIBAL: String;
+  UGOFFER: String;
+  UNITID: String;
+  VETURL: String;
+  WEBADDR: String;
+  ZIP: String;
+};
+
+type Props = {
+  coldata: CollegedataProps[];
+};
+
+const DialogCards: React.FC<Props> = ({ coldata }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState<number | null>(null);
 
@@ -26,7 +124,7 @@ const DialogCards: React.FC = () => {
     <Layout>
       <div style={{ display: "flex", flexGrow: 1, margin: "2rem" }}>
         <Grid container spacing={3}>
-          {Array.from({ length: 6 }, (_, i) => (
+          {coldata.map((data, i) => (
             <Grid item xs={3} key={i}>
               <Card
                 style={{
@@ -41,8 +139,8 @@ const DialogCards: React.FC = () => {
                     flexGrow: 1,
                   }}
                 >
-                  <Typography variant="h5">Card {i + 1}</Typography>
-                  <Typography>Click to open dialog</Typography>
+                  <Typography variant="h5">{data.INSTNM}</Typography>
+                  <Typography>{data.ADDR}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -53,11 +151,16 @@ const DialogCards: React.FC = () => {
           onClose={handleClose}
           aria-labelledby="dialog-title"
         >
-          <DialogTitle id="dialog-title">Card {selectedCard}</DialogTitle>
+          <DialogTitle id="dialog-title">
+            {selectedCard !== null
+              ? coldata[selectedCard].INSTNM
+              : "No college selected"}
+          </DialogTitle>
           <DialogContent>
             <Typography>
-              This is the content of card {selectedCard}. You can add any
-              additional information or form inputs here.
+              {selectedCard !== null
+                ? `${coldata[selectedCard].ADDR} - ${coldata[selectedCard].CITY}, ${coldata[selectedCard].STABBR}`
+                : "Please select a college to view its details."}
             </Typography>
           </DialogContent>
         </Dialog>
