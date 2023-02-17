@@ -9,6 +9,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
 import Layout from "../components/Layout";
+import Link from "next/link";
 import prisma from "../lib/prisma";
 
 const ITEMS_PER_PAGE = 500;
@@ -126,23 +127,25 @@ const DialogCards: React.FC<Props> = ({ coldata }) => {
         <Grid container spacing={3}>
           {coldata.map((data, i) => (
             <Grid item xs={3} key={i}>
-              <Card
-                style={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-                onClick={() => handleClickOpen(i)}
-              >
-                <CardContent
+              <Link href={`/collegedetails/${data.UNITID}`}>
+                <Card
                   style={{
-                    flexGrow: 1,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
+                  onClick={() => handleClickOpen(i)}
                 >
-                  <Typography variant="h5">{data.INSTNM}</Typography>
-                  <Typography>{data.ADDR}</Typography>
-                </CardContent>
-              </Card>
+                  <CardContent
+                    style={{
+                      flexGrow: 1,
+                    }}
+                  >
+                    <Typography variant="h5">{data.INSTNM}</Typography>
+                    <Typography>{data.ADDR}</Typography>
+                  </CardContent>
+                </Card>
+              </Link>
             </Grid>
           ))}
         </Grid>
